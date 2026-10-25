@@ -1,0 +1,73 @@
+<%- include('../partials/navbar') %>
+
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+  <%- include('../partials/flash') %>
+
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-clay-600">Admin</p>
+      <h1 class="mt-1 font-display text-4xl">People</h1>
+      <p class="mt-2 text-ink-700/70">Search, filter, and open anyone’s plan.</p>
+    </div>
+  </div>
+
+  <form class="mt-6 grid gap-3 rounded-3xl bg-white/70 p-4 ring-1 ring-ink-900/5 sm:grid-cols-[1fr_8rem_8rem_auto]" method="GET" action="/admin/users">
+    <input type="search" name="q" value="<%= q %>" placeholder="Search name or email" class="field mt-0" />
+    <select name="role" class="field mt-0">
+      <option value="all" <%= role === 'all' ? 'selected' : '' %>>All roles</option>
+      <option value="user" <%= role === 'user' ? 'selected' : '' %>>Users</option>
+      <option value="admin" <%= role === 'admin' ? 'selected' : '' %>>Admins</option>
+    </select>
+    <select name="status" class="field mt-0">
+      <option value="all" <%= status === 'all' ? 'selected' : '' %>>All status</option>
+      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+      <option value="disabled" <%= status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Filter</button>
+  </form>
+
+  <div class="mt-6 overflow-hidden rounded-3xl bg-white ring-1 ring-ink-900/5">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left text-sm">
+        <thead class="bg-sand-100 text-xs uppercase tracking-wide text-ink-700/70">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Person</th>
+            <th class="px-4 py-3 font-semibold">Role</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Tasks</th>
+            <th class="px-4 py-3 font-semibold">Last sign-in</th>
+            <th class="px-4 py-3 font-semibold">Joined</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-900/5">
+          <% rows.forEach((row) => { %>
+            <tr class="hover:bg-sand-50">
+              <td class="px-4 py-3">
+                <a href="/admin/users/<%= row.user._id %>" class="font-semibold hover:text-clay-600"><%= row.user.name %></a>
+                <p class="text-xs text-ink-700/60"><%= row.user.email %></p>
+              </td>
+              <td class="px-4 py-3">
+                <span class="badge <%= row.user.role === 'admin' ? 'bg-ink-900 text-white' : 'bg-sand-200 text-ink-800' %>"><%= row.user.role %></span>
+              </td>
+              <td class="px-4 py-3">
+                <span class="badge <%= row.user.isActive === false ? 'bg-red-100 text-red-700' : 'bg-moss-500/15 text-moss-600' %>">
+                  <%= row.user.isActive === false ? 'Disabled' : 'Active' %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-ink-700/80">
+                <%= row.stats.completed %>/<%= row.stats.total %> done
+              </td>
+              <td class="px-4 py-3 text-ink-700/70"><%= formatDate(row.user.lastLogin) %></td>
+              <td class="px-4 py-3 text-ink-700/70"><%= formatDate(row.user.date) %></td>
+            </tr>
+          <% }) %>
+          <% if (!rows.length) { %>
+            <tr>
+              <td colspan="6" class="px-4 py-10 text-center text-ink-700/60">No people match that filter.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>

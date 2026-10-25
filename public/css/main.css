@@ -3,5 +3,115 @@
 @tailwind utilities;
 
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-sand-50 text-ink-900 font-sans antialiased;
+  min-height: 100vh;
+}
+
+.page-home,
+.page-auth {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgba(196, 92, 38, 0.16), transparent 55%),
+    radial-gradient(900px 420px at 100% 0%, rgba(79, 122, 87, 0.14), transparent 50%),
+    #fbf7f0;
+}
+
+.page-app,
+.page-admin {
+  background:
+    linear-gradient(180deg, #f4eadb 0%, #fbf7f0 220px);
+}
+
+.brand-mark {
+  @apply inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-ink-900 text-sand-50 font-display text-lg shadow-lift;
+}
+
+.nav-link {
+  @apply rounded-full px-3 py-1.5 text-sm font-medium text-ink-700/80 transition hover:bg-white/70 hover:text-ink-950;
+}
+
+.nav-link.is-active {
+  @apply bg-white text-ink-950 shadow-sm;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-clay-500 focus-visible:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-ink-900 text-sand-50 hover:bg-ink-800 shadow-lift;
+}
+
+.btn-accent {
+  @apply bg-clay-500 text-white hover:bg-clay-600 shadow-lift;
+}
+
+.btn-ghost {
+  @apply bg-white/70 text-ink-800 ring-1 ring-ink-900/10 hover:bg-white;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+.card {
+  @apply rounded-3xl bg-white/80 ring-1 ring-ink-900/5 shadow-lift backdrop-blur;
+}
+
+.field {
+  @apply mt-1.5 block w-full rounded-2xl border-0 bg-white px-3.5 py-2.5 text-ink-900 shadow-sm ring-1 ring-ink-900/10 placeholder:text-ink-700/40 focus:ring-2 focus:ring-clay-500;
+}
+
+.flash {
+  @apply mb-4 flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-medium;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide;
+}
+
+.task-card {
+  @apply relative rounded-2xl bg-white p-4 ring-1 ring-ink-900/5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lift;
+}
+
+.flatpickr-calendar {
+  box-sizing: border-box;
+  background: #fff !important;
+  border: 1px solid rgba(28, 24, 20, 0.08) !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 18px 45px -20px rgba(28, 24, 20, 0.35) !important;
+  width: 100% !important;
+  max-width: 320px;
+  padding: 8px !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-weekday {
+  color: #1c1814 !important;
+}
+
+.flatpickr-day {
+  border-radius: 0.75rem !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected.active,
+.flatpickr-day.today {
+  background: #c45c26 !important;
+  border-color: #c45c26 !important;
+  color: #fff !important;
+}
+
+.flatpickr-day:hover {
+  background: #f4eadb !important;
+  border-color: #f4eadb !important;
+}
+
+.dropdown-menu {
+  @apply origin-top-right absolute right-0 mt-2 w-48 rounded-2xl bg-white py-1 shadow-lift ring-1 ring-ink-900/10 z-20;
 }

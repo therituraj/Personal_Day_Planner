@@ -1,336 +1,222 @@
-<%- include('partials/navbar.ejs')%>
+<%- include('partials/navbar') %>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<style>
-  .flatpickr-calendar {
-    box-sizing: border-box;
-    background-color: #f9fafb; /* Light background */
-    border: 1px solid #d1d5db; /* Gray border */
-    border-radius: 0.5rem; /* Rounded corners */
-     /* Inner padding */
-    width: min-content;
-  }
-  .flatpickr-day{
-    border-radius: 4px;
-  }
-  .flatpickr-day.selected,
-  .flatpickr-day.selected.active
-  {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
-    border-radius: 8px;
-  }
-  .flatpickr-day.selected:hover,
-  .flatpickr-day.today:hover{
-    background-color: #312e81;
-    border-color: #312e81;
-  }
 
-  .flatpickr-day.today,
-  .flatpickr-day.today.active
-  {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
-    border-radius: 8px;
-    color: #fff;
-  }
-</style>
-<header class="bg-white shadow">
-  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-    <div class="lg:flex lg:items-center lg:justify-between">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-2xl/7 font-bold text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          Welcome, <%= user.name %>
-        </h2>
-        <p class="text-sm text-gray-500 font-semibold">
-          Let's make today productive! Here’s an overview of your tasks.
-        </p>
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+  <%- include('partials/flash') %>
+
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-clay-600">Hello, <%= user.name.split(' ')[0] %></p>
+      <h1 class="mt-1 font-display text-4xl text-ink-950">Let’s make today count.</h1>
+      <p class="mt-2 text-ink-700/70">You’re looking at <span class="font-semibold text-ink-900"><%= currentDate %></span>. Add a task, then move through the day at your own pace.</p>
+    </div>
+    <a href="#task_form" class="btn btn-accent self-start">Add a task</a>
+  </div>
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Today’s progress</p>
+      <p class="mt-1 font-display text-4xl"><%= progress %>%</p>
+      <div class="mt-3 h-2 overflow-hidden rounded-full bg-sand-200">
+        <div class="h-full rounded-full bg-clay-500" style="width: <%= progress %>%"></div>
       </div>
-      <div class="mt-5 flex lg:ml-4 lg:mt-0">
-        <span class="sm:ml-3">
-          <a href="#task_form" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="#fff" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path d="M20 2H8c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM8 16V4h12l.002 12H8z"></path>
-              <path d="M4 8H2v12c0 1.103.897 2 2 2h12v-2H4V8zm11-2h-2v3h-3v2h3v3h2v-3h3V9h-3z"></path>
-            </svg>
-            Add Task
-          </a>
-        </span>
-      </div>
+      <p class="mt-2 text-xs text-ink-700/60"><%= todayCounts.completed %> of <%= todayCounts.total %> finished today</p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Completed (all time)</p>
+      <p class="mt-1 font-display text-4xl text-moss-600"><%= completed %></p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Still pending</p>
+      <p class="mt-1 font-display text-4xl text-clay-600"><%= pending %></p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Not completed</p>
+      <p class="mt-1 font-display text-4xl text-red-700"><%= notCompleted %></p>
     </div>
   </div>
-</header>
-<div class="container mx-auto mt-5">
-  <% if (typeof error !== 'undefined' && error.length > 0) { %>
-    <div class="bg-red-600 p-4 rounded-md font-semibold mb-6">
-      <p class="text-white"><%= error %></p>
-    </div>
-  <% } %>
-  <% if (success_msg && success_msg.length > 0) { %>
-    <div class="bg-green-600 p-4 rounded-md font-semibold mb-6">
-      <p class="text-white"><%= success_msg %></p>
-    </div>
-  <% } %>
-</div>
 
+  <section class="mt-8 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+    <div>
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-display text-2xl">Tasks for this day</h2>
+        <div class="flex gap-2 text-xs">
+          <button type="button" data-filter="all" class="filter-chip badge bg-ink-900 text-white">All</button>
+          <button type="button" data-filter="PENDING" class="filter-chip badge bg-sand-200 text-ink-800">Pending</button>
+          <button type="button" data-filter="COMPLETED" class="filter-chip badge bg-sand-200 text-ink-800">Done</button>
+        </div>
+      </div>
 
-<section class="text-gray-600 body-font">
-  <div class="container px-5 py-12 mx-auto flex flex-wrap">
-    <h1 class="text-xl font-semibold mb-4">Tasks for <%= currentDate %></h1>
-    <div class="flex flex-wrap w-full">
-      <div class="lg:w-3/6 md:w-1/2 md:pr-10 md:py-6">
-
-
-        
       <% if (tasks.length > 0) { %>
-        <% tasks.forEach((task,index) => { %>
-          
-        <div class="flex relative pb-12">
-          <div class="h-full w-10 absolute inset-0 flex items-center justify-center">
-              
-              <div class="h-full w-1 
-              <%= 
-                index === 0 
-                ? (task.status === 'COMPLETED' ? 'bg-green-500' : 'bg-gray-200')  // If it's the first task
-                : (tasks[index - 1].status === 'COMPLETED' && task.status === 'COMPLETED' ? 'bg-green-500' : 'bg-gray-200') // For subsequent tasks
-              %>
-              pointer-events-none"></div>
-         
-          </div>
-          <% if (task.status == "NOT_COMPLETED") { %>
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-500 inline-flex items-center justify-center text-white relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fff" class="w-5 h-5">
-              <path d="M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h3v3.767L13.277 18H20c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm0 14h-7.277L9 18.233V16H4V4h16v12z"></path>
-              <path d="M9.707 13.707 12 11.414l2.293 2.293 1.414-1.414L13.414 10l2.293-2.293-1.414-1.414L12 8.586 9.707 6.293 8.293 7.707 10.586 10l-2.293 2.293z"></path>
-            </svg>
-          </div>
-          <% }else if (task.status == "PENDING") { %>
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-500 inline-flex items-center justify-center text-white relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fff" class="w-5 h-5">
-              <path d="M11.001 10h2v5h-2zM11 16h2v2h-2z"></path>
-              <path d="M13.768 4.2C13.42 3.545 12.742 3.138 12 3.138s-1.42.407-1.768 1.063L2.894 18.064a1.986 1.986 0 0 0 .054 1.968A1.984 1.984 0 0 0 4.661 21h14.678c.708 0 1.349-.362 1.714-.968a1.989 1.989 0 0 0 .054-1.968L13.768 4.2zM4.661 19 12 5.137 19.344 19H4.661z"></path>
-            </svg>
-          </div>
-          <% }else if (task.status == "COMPLETED") { %>
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500 inline-flex items-center justify-center text-white relative z-10">
-            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path>
-              <path d="M22 4L12 14.01l-3-3"></path>
-            </svg>
-          </div>
-          <% } else {%>
-            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-500 inline-flex items-center justify-center text-white relative z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#fff" class="w-5 h-5">
-                <path d="M20 2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h3v3.767L13.277 18H20c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zm0 14h-7.277L9 18.233V16H4V4h16v12z"></path>
-                <path d="M9.707 13.707 12 11.414l2.293 2.293 1.414-1.414L13.414 10l2.293-2.293-1.414-1.414L12 8.586 9.707 6.293 8.293 7.707 10.586 10l-2.293 2.293z"></path>
-              </svg>
-            </div>
-          <% } %>
-          <div class="flex-grow pl-4">
-            <h2 class="title-font text-md font-semibold text-gray-900 mb-1 ">
-              <%= task.title %>
-            </h2>
-            <p class="leading-relaxed">
-              <%= task.description %>
-            </p>
-            <% if (task.status == "NOT_COMPLETED") { %>
-            <div class="center relative inline-block select-none whitespace-nowrap rounded-lg bg-red-500 py-2 px-3.5 align-baseline font-sans text-xs font-bold uppercase leading-none text-white">
-              <div class="mt-px">Not Completed</div>
-            </div>
-            <% }else if (task.status == "PENDING") { %>
-            <div class="center relative inline-block select-none whitespace-nowrap rounded-lg bg-orange-500 py-2 px-3.5 align-baseline font-sans text-xs font-bold uppercase leading-none text-white">
-              <div class="mt-px">Pending</div>
-            </div>
-            <% }else if (task.status == "COMPLETED") { %>
-            <div class="center relative inline-block select-none whitespace-nowrap rounded-lg bg-green-500 py-2 px-3.5 align-baseline font-sans text-xs font-bold uppercase leading-none text-white">
-              <div class="mt-px">Completed</div>
-            </div>
-            <% }else{ %>
-              <div class="center relative inline-block select-none whitespace-nowrap rounded-lg bg-red-500 py-2 px-3.5 align-baseline font-sans text-xs font-bold uppercase leading-none text-white">
-                <div class="mt-px">Not Completed</div>
-              </div>
-            <% } %>
-          </div>
-      
-          <!-- Dropdown Menu -->
-          <div class="relative inline-block text-left ml-4">
-              <button id="dropdownButton" onclick="toggleDropdown(this)" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Actions
-                  <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-              </button>
-              <div id="dropdownMenu" class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10">
-                  <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                    <a href="#" onclick="updateStatus('<%= task._id %>', 'pending')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Mark Pending</a>
-                    <a href="#" onclick="updateStatus('<%= task._id %>', 'notcompleted')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Not Completed</a>
-                    <a href="#" onclick="updateStatus('<%= task._id %>', 'completed')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Mark Completed</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Edit Task</a>
-                    <a href="#" class="block px-4 py-2 text-sm bg-red-200 text-red-700 hover:bg-red-100 hover:text-red-900" role="menuitem">
-                      <form action="/tasks/delete/<%= task._id %>?date=<%= currentDate %>" method="POST" class="inline">
-                        <button type="submit" class="block px-4 py-2 text-sm bg-red-200 text-red-700 hover:bg-red-100 hover:text-red-900">
-                          Delete
-                        </button>
-                      </form>                      
-                    </a>
+        <div class="space-y-3" id="task-list">
+          <% tasks.forEach((task) => { %>
+            <article class="task-card" data-status="<%= task.status %>">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-semibold <%= task.status === 'COMPLETED' ? 'line-through text-ink-700/50' : '' %>"><%= task.title %></h3>
+                  <% if (task.description) { %>
+                    <p class="mt-1 text-sm leading-relaxed text-ink-700/75"><%= task.description %></p>
+                  <% } %>
+                  <% if (task.status === 'COMPLETED') { %>
+                    <span class="badge mt-3 bg-moss-500/15 text-moss-600">Completed</span>
+                  <% } else if (task.status === 'PENDING') { %>
+                    <span class="badge mt-3 bg-clay-500/15 text-clay-600">Pending</span>
+                  <% } else { %>
+                    <span class="badge mt-3 bg-red-100 text-red-700">Not completed</span>
+                  <% } %>
+                </div>
+                <div class="relative">
+                  <button type="button" class="dropdown-button btn btn-ghost px-3 py-1.5 text-xs" onclick="toggleDropdown(this)">
+                    Actions
+                  </button>
+                  <div class="dropdown-menu hidden">
+                    <button type="button" class="block w-full px-4 py-2 text-left text-sm hover:bg-sand-100" onclick="updateStatus('<%= task._id %>', 'pending')">Mark pending</button>
+                    <button type="button" class="block w-full px-4 py-2 text-left text-sm hover:bg-sand-100" onclick="updateStatus('<%= task._id %>', 'completed')">Mark completed</button>
+                    <button type="button" class="block w-full px-4 py-2 text-left text-sm hover:bg-sand-100" onclick="updateStatus('<%= task._id %>', 'notcompleted')">Not completed</button>
+                    <button type="button" class="block w-full px-4 py-2 text-left text-sm hover:bg-sand-100"
+                      onclick="openEdit('<%= task._id %>', <%= JSON.stringify(task.title) %>, <%= JSON.stringify(task.description || '') %>)">
+                      Edit
+                    </button>
+                    <form action="/tasks/delete/<%= task._id %>?date=<%= currentDate %>" method="POST">
+                      <button type="submit" class="block w-full px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50">Delete</button>
+                    </form>
                   </div>
+                </div>
               </div>
+            </article>
+          <% }) %>
+        </div>
+        <% if (todayCounts.total > 0 && todayCounts.completed === todayCounts.total) { %>
+          <div class="mt-6 rounded-3xl bg-moss-500/10 p-5 text-moss-600">
+            <p class="font-display text-2xl">That’s a wrap.</p>
+            <p class="mt-1 text-sm">Every task for this date is complete. Rest easy — tomorrow is a fresh page.</p>
           </div>
-      </div>
-        
-        <% }) %>
-          <div class="flex relative">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500 inline-flex items-center justify-center text-white relative z-10">
-              <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path>
-                <path d="M22 4L12 14.01l-3-3"></path>
-              </svg>
-            </div>
-            <div class="flex-grow pl-4">
-              <h2 class="font-medium title-font text-sm text-gray-900 mb-1 tracking-wider">FINISH</h2>
-              <p class="leading-relaxed">
-                    You've conquered all your tasks for today! ✅<br>
-                    Time to relax and celebrate your productivity. 💪✨<br>
-                    Keep up the amazing work – tomorrow’s another opportunity to shine!
-              </p>
-            </div>
-          </div>
+        <% } %>
       <% } else { %>
-        <div class="flex relative">
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500 inline-flex items-center justify-center text-white relative z-10">
-            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path>
-              <path d="M22 4L12 14.01l-3-3"></path>
-            </svg>
-          </div>
-          <div class="flex-grow pl-4">
-            <h2 class="font-medium title-font text-sm text-gray-900 mb-1 tracking-wider">No tasks for this day</h2>
-            <p class="leading-relaxed">Pitchfork ugh tattooed scenester echo park gastropub whatever cold-pressed retro.</p>
-          </div>
+        <div class="card p-10 text-center">
+          <p class="font-display text-2xl">This day is still open.</p>
+          <p class="mt-2 text-sm text-ink-700/70">No tasks yet. Add the first one and give the day a shape.</p>
+          <a href="#task_form" class="btn btn-primary mt-5">Write the first task</a>
         </div>
-
-        
       <% } %>
-
-      </div>
-      <div class="lg:w-3/6 md:w-1/2 rounded-lg md:mt-0 mt-12" >
-        <div class="mx-auto">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div>
-              <div id="calendar_view"></div>
-            </div>
-        
-            <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
-              <div class="bg-green-100 shadow-md rounded-lg p-6 flex flex-col items-center">
-                <h3 class="text-xl font-semibold text-green-700">Tasks Completed</h3>
-                <p class="text-4xl font-bold text-green-800">
-                  <!-- Completed tasks count here -->
-                  <%= completed %>
-
-                </p>
-              </div>
-        
-              <div class="bg-red-100 shadow-md rounded-lg p-6 flex flex-col items-center">
-                <h3 class="text-xl font-semibold text-red-700">Tasks Not Completed</h3>
-                <p class="text-4xl font-bold text-red-800">
-                  <!-- Not completed tasks count here -->
-                  <%= notCompleted %>
-                </p>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-        
-        <br>
-        <div class="bg-gray-100 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0" id="task_form">
-        <h2 class="text-gray-900 text-lg font-semibold title-font mb-5">Add Task for : <%= currentDate %></h2>
-        
-        <form action="/dashboard/task" method="POST" class="mb-4">
-          <input type="hidden" name="date" value="<%= currentDate %>">
-        
-          <div class="relative mb-4">
-          <label for="task_title" class="leading-7 text-sm text-gray-600">Task Title</label>
-          <input type="text" id="task_title" name="title" placeholder="Task Title" class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-        </div>
-        
-        <div class="relative mb-4">
-          <label for="description" class="leading-7 text-sm text-gray-600">Task Description</label>
-          <textarea id="description" name="description" placeholder="Task Description..." class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"></textarea>
-        </div>
-
-        <button type="submit" class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">Add Task</button>
-        <p class="text-xs text-gray-500 mt-3">Every task completed is a step towards your goals. Keep going!</p>
-      </form>
-      </div>
-      </div>
     </div>
+
+    <aside class="space-y-6">
+      <div class="card p-5">
+        <h2 class="font-display text-2xl">Calendar</h2>
+        <p class="mb-3 text-sm text-ink-700/60">Choose any date to review or plan ahead.</p>
+        <div id="calendar_view"></div>
+      </div>
+
+      <div class="card p-6" id="task_form">
+        <h2 class="font-display text-2xl">Add task</h2>
+        <p class="text-sm text-ink-700/60">This lands on <%= currentDate %>.</p>
+        <form action="/dashboard/task" method="POST" class="mt-4 space-y-3">
+          <input type="hidden" name="date" value="<%= currentDate %>">
+          <div>
+            <label for="task_title" class="text-sm font-medium">Title</label>
+            <input type="text" id="task_title" name="title" required placeholder="What needs doing?" class="field">
+          </div>
+          <div>
+            <label for="description" class="text-sm font-medium">Notes</label>
+            <textarea id="description" name="description" rows="3" placeholder="Optional context…" class="field"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-full">Add to this day</button>
+        </form>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-ink-950/40 p-4">
+  <div class="card w-full max-w-md p-6">
+    <h2 class="font-display text-2xl">Edit task</h2>
+    <form id="edit-form" method="POST" class="mt-4 space-y-3">
+      <input type="hidden" name="date" value="<%= currentDate %>">
+      <div>
+        <label class="text-sm font-medium">Title</label>
+        <input id="edit-title" name="title" required class="field">
+      </div>
+      <div>
+        <label class="text-sm font-medium">Notes</label>
+        <textarea id="edit-description" name="description" rows="3" class="field"></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button type="submit" class="btn btn-primary flex-1">Save</button>
+        <button type="button" class="btn btn-ghost flex-1" onclick="closeEdit()">Cancel</button>
+      </div>
+    </form>
   </div>
-</section>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     flatpickr("#calendar_view", {
       inline: true,
-      onReady: function(selectedDates, dateStr, instance) {
-        // Custom Tailwind classes to Flatpickr elements
-        instance.calendarContainer.classList.add("bg-gray-100", "p-4", "rounded-lg", "shadow-md");
-        document.querySelectorAll(".flatpickr-day").forEach(day => {
-          day.classList.add("hover:bg-blue-100", "text-gray-800", "rounded-md");
-        });
-      },
-      defaultDate: "<%= currentDate %>", // Set the default date
+      defaultDate: "<%= currentDate %>",
       onChange: function(selectedDates, dateStr) {
-        // console.log("Selected date: ", dateStr);
-        
-        const selectedDate = dateStr;
-        window.location.href = `/dashboard?date=${selectedDate}`;
-        },
+        window.location.href = `/dashboard?date=${dateStr}`;
+      },
     });
   });
-</script>
-<script>
-function toggleDropdown(button) {
-        // Close any open dropdowns before toggling the clicked one
-        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
-        
-        // Toggle the dropdown menu for the clicked button
-        const dropdownMenu = button.nextElementSibling;
-        dropdownMenu.classList.toggle('hidden');
-    }
 
-    // Close dropdowns if clicked outside
-    window.addEventListener('click', function(event) {
-        if (!event.target.matches('.dropdown-button') && !event.target.closest('.dropdown-menu')) {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.add('hidden'));
-        }
+  function toggleDropdown(button) {
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+      if (menu !== button.nextElementSibling) menu.classList.add("hidden");
     });
+    button.nextElementSibling.classList.toggle("hidden");
+  }
 
-    async function updateStatus(taskId, status) {
+  window.addEventListener("click", function (event) {
+    if (!event.target.closest(".dropdown-button") && !event.target.closest(".dropdown-menu")) {
+      document.querySelectorAll(".dropdown-menu").forEach((menu) => menu.classList.add("hidden"));
+    }
+  });
+
+  async function updateStatus(taskId, status) {
     const endpointMap = {
       pending: `/tasks/${taskId}/status/pending`,
       notcompleted: `/tasks/${taskId}/status/notcompleted`,
-      completed: `/tasks/${taskId}/status/completed`
+      completed: `/tasks/${taskId}/status/completed`,
     };
-    
     try {
-      const response = await fetch(endpointMap[status], {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await fetch(endpointMap[status], { method: "PATCH" });
       const data = await response.json();
-      if (response.ok) {
-        location.reload(); // Reload to show updated status
-      } else {
-        alert(data.error || 'Failed to update status');
-      }
+      if (response.ok) location.reload();
+      else alert(data.error || "Failed to update status");
     } catch (error) {
-      alert('An error occurred: ' + error.message);
+      alert("An error occurred: " + error.message);
     }
   }
 
+  function openEdit(id, title, description) {
+    const modal = document.getElementById("edit-modal");
+    document.getElementById("edit-form").action = `/tasks/edit/${id}`;
+    document.getElementById("edit-title").value = title;
+    document.getElementById("edit-description").value = description;
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
 
+  function closeEdit() {
+    const modal = document.getElementById("edit-modal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
 
+  document.querySelectorAll(".filter-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const filter = chip.dataset.filter;
+      document.querySelectorAll(".filter-chip").forEach((c) => {
+        c.classList.remove("bg-ink-900", "text-white");
+        c.classList.add("bg-sand-200", "text-ink-800");
+      });
+      chip.classList.remove("bg-sand-200", "text-ink-800");
+      chip.classList.add("bg-ink-900", "text-white");
+      document.querySelectorAll("#task-list .task-card").forEach((card) => {
+        card.classList.toggle("hidden", filter !== "all" && card.dataset.status !== filter);
+      });
+    });
+  });
 </script>

@@ -1,22 +1,23 @@
-<nav class="bg-gray-800">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex h-16 items-center justify-between">
-      <div class="flex items-center justify-between">
-        <div class="flex-shrink-0">
-          <img class="h-8 w-8" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
-        </div>
-    </div>
-    <div class="md:block">
-      <div class="ml-10 flex items-baseline space-x-4">
-        <% if (!user) { %>  <!-- This will now work -->
-          <a href="/users/login" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Login</a>
-          <a href="/users/register" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Register</a>
-        <% } else { %>
-          <a href="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Dashboard</a>
-          <a href="/users/logout" class="rounded-md px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700">Logout</a>
-        <% } %>
-      </div>
-    </div>
-    </div>
+<header class="sticky top-0 z-40 border-b border-ink-900/5 bg-sand-50/80 backdrop-blur">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <a href="<%= user && user.role === 'admin' ? '/admin' : (user ? '/dashboard' : '/') %>" class="flex items-center gap-2.5">
+      <span class="brand-mark">D</span>
+      <span class="font-display text-xl tracking-tight">Dayline</span>
+    </a>
+
+    <nav class="flex items-center gap-1">
+      <% if (!user) { %>
+        <a href="/users/login" class="nav-link">Sign in</a>
+        <a href="/users/register" class="btn btn-primary">Get started</a>
+      <% } else if (user.role === 'admin') { %>
+        <a href="/admin" class="nav-link <%= currentPath === '/admin' ? 'is-active' : '' %>">Overview</a>
+        <a href="/admin/users" class="nav-link <%= currentPath && currentPath.indexOf('/admin/users') === 0 ? 'is-active' : '' %>">People</a>
+        <a href="/dashboard" class="nav-link">My day</a>
+        <a href="/users/logout" class="btn btn-ghost ml-1">Sign out</a>
+      <% } else { %>
+        <a href="/dashboard" class="nav-link is-active">My day</a>
+        <a href="/users/logout" class="btn btn-ghost ml-1">Sign out</a>
+      <% } %>
+    </nav>
   </div>
-</nav>
+</header>

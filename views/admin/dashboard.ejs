@@ -1,0 +1,80 @@
+<%- include('../partials/navbar') %>
+
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+  <%- include('../partials/flash') %>
+
+  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-clay-600">Admin</p>
+  <h1 class="mt-1 font-display text-4xl">A quiet view of the workspace.</h1>
+  <p class="mt-2 max-w-2xl text-ink-700/70">See who has joined, who is showing up, and how work is moving — without interrupting anyone’s day.</p>
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">People</p>
+      <p class="mt-1 font-display text-4xl"><%= stats.users %></p>
+      <p class="mt-1 text-xs text-ink-700/50"><%= stats.activeUsers %> active · <%= stats.admins %> admin<%= stats.admins === 1 ? '' : 's' %></p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Signed in this week</p>
+      <p class="mt-1 font-display text-4xl"><%= stats.recentLogins %></p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Tasks completed</p>
+      <p class="mt-1 font-display text-4xl text-moss-600"><%= stats.completed %></p>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm text-ink-700/60">Open work</p>
+      <p class="mt-1 font-display text-4xl text-clay-600"><%= stats.pending + stats.notCompleted %></p>
+      <p class="mt-1 text-xs text-ink-700/50"><%= stats.pending %> pending · <%= stats.notCompleted %> not completed</p>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-6 lg:grid-cols-2">
+    <section class="card p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="font-display text-2xl">Newest people</h2>
+        <a href="/admin/users" class="text-sm font-semibold text-clay-600">View all</a>
+      </div>
+      <ul class="mt-4 divide-y divide-ink-900/5">
+        <% newest.forEach((person) => { %>
+          <li class="flex items-center justify-between py-3">
+            <div>
+              <p class="font-semibold"><%= person.name %></p>
+              <p class="text-xs text-ink-700/60"><%= person.email %></p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-ink-700/50"><%= formatDate(person.date) %></p>
+              <span class="badge mt-1 <%= person.role === 'admin' ? 'bg-ink-900 text-white' : 'bg-sand-200 text-ink-800' %>"><%= person.role %></span>
+            </div>
+          </li>
+        <% }) %>
+        <% if (!newest.length) { %>
+          <li class="py-6 text-sm text-ink-700/60">No users yet.</li>
+        <% } %>
+      </ul>
+    </section>
+
+    <section class="card p-6">
+      <h2 class="font-display text-2xl">Most completed</h2>
+      <p class="text-sm text-ink-700/60">People closing the most loops.</p>
+      <ul class="mt-4 space-y-3">
+        <% leaderboard.forEach((row, i) => { %>
+          <li>
+            <a href="/admin/users/<%= row.user._id %>" class="flex items-center justify-between rounded-2xl px-3 py-2 hover:bg-sand-50">
+              <span class="flex items-center gap-3">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-sand-200 text-sm font-bold"><%= i + 1 %></span>
+                <span>
+                  <span class="block font-semibold"><%= row.user.name %></span>
+                  <span class="text-xs text-ink-700/50"><%= row.stats.total %> tasks</span>
+                </span>
+              </span>
+              <span class="font-display text-xl text-moss-600"><%= row.stats.completed %></span>
+            </a>
+          </li>
+        <% }) %>
+        <% if (!leaderboard.length) { %>
+          <li class="py-6 text-sm text-ink-700/60">Invite people and activity will appear here.</li>
+        <% } %>
+      </ul>
+    </section>
+  </div>
+</main>

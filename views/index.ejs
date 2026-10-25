@@ -1,44 +1,58 @@
-<div class="bg-white">
-    <header class="absolute inset-x-0 top-0 z-50">
-      <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div class="flex lg:flex-1">
-          <a href="#" class="-m-1.5 p-1.5">
-            <span class="sr-only">Your Company</span>
-            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600" alt="">
-          </a>
-        </div>
-        <div class="flex flex-1 justify-end">
-          <a href="/users/login" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
-        </div>
-      </nav>
-    </header>
-  
-    <div class="relative isolate px-6 pt-14 lg:px-8">
-      <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-        <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
-      </div>
-      <div class="mx-auto max-w-2xl py-8 sm:py-12 lg:py-16">
-        <div class="hidden sm:mb-8 sm:flex sm:justify-center">
-          <div class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-            Announcing our next round of funding. <a href="#" class="font-semibold text-indigo-600"><span class="absolute inset-0" aria-hidden="true"></span>Read more <span aria-hidden="true">&rarr;</span></a>
-          </div>
-        </div>
-        <div class="text-center">
-          <h1 class="text-balance text-6xl font-semibold tracking-tight text-gray-900 sm:text-7xl">
-            Plan Yours Day <br>
-            In Your Way 
+<%- include('partials/navbar') %>
+
+<main class="relative overflow-hidden">
+  <section class="mx-auto max-w-6xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24">
+    <div class="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+      <div>
+        <p class="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-clay-600 ring-1 ring-ink-900/10">
+          A calmer kind of productivity
+        </p>
+        <h1 class="mt-6 font-display text-5xl leading-[1.05] text-ink-950 sm:text-6xl">
+          Plan your day<br />in your way.
         </h1>
-          <p class="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8">
-            Plan your days effectively with a tool designed to streamline your tasks. Manage your schedule easily, ensuring nothing is missed. Stay organized and improve productivity in your personal and professional life.
-          </p>
-          <div class="mt-10 flex items-center justify-center gap-x-6">
-            <a href="/users/register" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Get started</a>
-            <a href="/users/login" class="text-sm font-semibold leading-6 text-gray-900">Learn more <span aria-hidden="true">→</span></a>
-          </div>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-700/80">
+          Dayline is a personal planner that keeps one day in focus. Add what matters, mark what moved, and leave the rest for tomorrow — without the noise of a typical task app.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="/users/register" class="btn btn-accent px-6">Start planning free</a>
+          <a href="/users/login" class="btn btn-ghost px-6">I already have an account</a>
         </div>
       </div>
-      <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-40rem)]" aria-hidden="true">
-        <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+
+      <div class="card p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-700/50">Today’s rhythm</p>
+        <div class="mt-4 space-y-3">
+          <% const samples = [
+            { t: 'Morning stretch & tea', s: 'Done', c: 'bg-moss-500/15 text-moss-600' },
+            { t: 'Deep work: proposal draft', s: 'Now', c: 'bg-clay-500/15 text-clay-600' },
+            { t: 'Walk after lunch', s: 'Later', c: 'bg-sand-200 text-ink-700' },
+            { t: 'Call with Priya', s: 'Later', c: 'bg-sand-200 text-ink-700' }
+          ]; samples.forEach((item) => { %>
+            <div class="flex items-center justify-between rounded-2xl bg-sand-50 px-4 py-3 ring-1 ring-ink-900/5">
+              <span class="font-medium"><%= item.t %></span>
+              <span class="badge <%= item.c %>"><%= item.s %></span>
+            </div>
+          <% }) %>
+        </div>
+        <p class="mt-5 text-sm text-ink-700/60">Pick a date. Fill the day. Close the loop.</p>
       </div>
     </div>
-</div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+    <div class="grid gap-5 md:grid-cols-3">
+      <article class="card p-6">
+        <h2 class="font-display text-2xl">One date at a time</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700/75">Jump through the calendar and see only that day’s work. No endless backlog staring back at you.</p>
+      </article>
+      <article class="card p-6">
+        <h2 class="font-display text-2xl">Honest status</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700/75">Pending, done, or not completed — so you can tell the difference between delayed and finished.</p>
+      </article>
+      <article class="card p-6">
+        <h2 class="font-display text-2xl">Admin clarity</h2>
+        <p class="mt-2 text-sm leading-relaxed text-ink-700/75">Workspace admins can see who is active, how people are progressing, and step in when an account needs help.</p>
+      </article>
+    </div>
+  </section>
+</main>

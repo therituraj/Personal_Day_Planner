@@ -1,0 +1,18 @@
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+  <div class="flash bg-red-50 text-red-800 ring-1 ring-red-200" role="alert">
+    <ul class="list-disc pl-4 space-y-1">
+      <% errors.forEach(function(error) { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+<% if (typeof error !== 'undefined' && error.length > 0) { %>
+  <div class="flash bg-red-50 text-red-800 ring-1 ring-red-200" role="alert"><%= error %></div>
+<% } %>
+<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+  <div class="flash bg-red-50 text-red-800 ring-1 ring-red-200" role="alert"><%= error_msg %></div>
+<% } %>
+<% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+  <div class="flash bg-moss-500/10 text-moss-600 ring-1 ring-moss-500/20" role="status"><%= success_msg %></div>
+<% } %>

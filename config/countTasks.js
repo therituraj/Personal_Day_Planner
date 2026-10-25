@@ -1,36 +1,35 @@
-const Task = require('./../models/Task'); // Adjust the path as necessary
+const Task = require("../models/Task");
 
-// Function to count tasks
-async function countTasks(userId) {
-  try {
-    // Find all tasks for the user
-    const tasks = await Task.find({ user: userId });
-    let completedCount = 0;
-    let notCompletedCount = 0;
+function tallySubtasks(taskDocs) {
+  let completed = 0;
+  let pending = 0;
+  let notCompleted = 0;
+  let total = 0;
 
-    // Iterate through tasks and count based on status
-    tasks.forEach(task => {
-      task.tasks.forEach(subTask => {
-        if (subTask.status === 'COMPLETED') {
-          completedCount++;
-        } else if(subTask.status === 'PENDING') {
-          notCompletedCount++;
-        }else{
-          notCompletedCount++;
-        }
-      });
+  taskDocs.forEach((doc) => {
+    (doc.tasks || []).forEach((subTask) => {
+      total += 1;
+      if (subTask.status === "COMPLETED") completed += 1;
+      else if (subTask.status === "PENDING") pending += 1;
+      else notCompleted += 1;
     });
+  });
 
-    return {
-      completed: completedCount,
-      notCompleted: notCompletedCount
-    };
-  } catch (error) {
-    console.error('Error counting tasks:', error);
-    throw error; // Handle error as needed
-  }
+  return { completed, pending, notCompleted, total };
+}
+
+async function countTasks(userId) {
+  const tasks = await Task.find({ user: userId });
+  return tallySubtasks(tasks);
+}
+
+async function countTasksForDate(userId, date) {
+  const doc = await Task.findOne({ user: userId, date });
+  return tallySubtasks(doc ? [doc] : []);
 }
 
 module.exports = {
-  countTasks
+  countTasks,
+  countTasksForDate,
+  tallySubtasks,
 };

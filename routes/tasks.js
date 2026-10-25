@@ -1,91 +1,77 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Task = require('../models/Task');
-const { ensureAuthenticated } = require('../config/auth');
+const Task = require("../models/Task");
+const { ensureAuthenticated } = require("../config/auth");
 
-// Update a task
-router.post('/edit/:id', ensureAuthenticated, async (req, res) => {
+function redirectDate(req) {
+  return req.body.date || req.query.date || new Date().toISOString().split("T")[0];
+}
+
+router.post("/edit/:taskId", ensureAuthenticated, async (req, res) => {
+  const date = redirectDate(req);
+  const { title, description } = req.body;
   try {
-    const { title, description, dueDate, status } = req.body;
-    await Task.findByIdAndUpdate(req.params.id, {
-      title,
-      description,
-      dueDate,
-      status,
-    });
-    res.redirect('/tasks');
-  } catch (error) {
-    res.status(500).send('Error updating task');
-  }
-});
-
-// Delete a task
-router.post('/delete/:taskId',ensureAuthenticated, async (req, res) => {
-  const { taskId } = req.params;
-  const date = req.query.date;
-
-  try {
-    // Remove the specific task from the tasks array
+    if (!title || !title.trim()) {
+      req.flash("error_msg", "A task needs a title.");
+      return res.redirect(`/dashboard?date=${date}`);
+    }
     await Task.updateOne(
-      { 'tasks._id': taskId },
-      { $pull: { tasks: { _id: taskId } } }
+      { user: req.user.id, "tasks._id": req.params.taskId },
+      {
+        $set: {
+          "tasks.$.title": title.trim(),
+          "tasks.$.description": (description || "").trim(),
+        },
+      }
     );
-    req.flash('success_msg', 'Task deleted successfully');
+    req.flash("success_msg", "Task updated.");
     res.redirect(`/dashboard?date=${date}`);
   } catch (error) {
-    console.error('Error deleting task:', error);
-    req.flash('error_msg', 'Error deleting task');
+    console.error("Error updating task:", error);
+    req.flash("error_msg", "Could not update that task.");
     res.redirect(`/dashboard?date=${date}`);
   }
 });
 
-// Route to set status to 'pending'
-router.patch('/:taskId/status/pending', ensureAuthenticated, async (req, res) => {
+router.post("/delete/:taskId", ensureAuthenticated, async (req, res) => {
+  const date = redirectDate(req);
   try {
-    const task = await Task.updateOne(
-      { 'tasks._id': req.params.taskId },
-      { $set: { 'tasks.$.status': 'PENDING' } }
+    await Task.updateOne(
+      { user: req.user.id, "tasks._id": req.params.taskId },
+      { $pull: { tasks: { _id: req.params.taskId } } }
     );
-    req.flash('success_msg', 'Task status updated successfully to "Pending"');
-    res.json({ message: 'Task status updated to pending', task });
+    req.flash("success_msg", "Task removed.");
+    res.redirect(`/dashboard?date=${date}`);
   } catch (error) {
-    req.flash('error_msg', 'Error updating task status');
-    res.status(500).json({ error: 'Error updating task status' });
+    console.error("Error deleting task:", error);
+    req.flash("error_msg", "Could not delete that task.");
+    res.redirect(`/dashboard?date=${date}`);
   }
 });
 
-// Route to set status to 'not completed'
-router.patch('/:taskId/status/notcompleted',ensureAuthenticated,  async (req, res) => {
+async function setStatus(req, res, status) {
   try {
-    const task = await Task.updateOne(
-      { 'tasks._id': req.params.taskId },
-      { $set: { 'tasks.$.status': 'NOT_COMPLETED' } }
+    const result = await Task.updateOne(
+      { user: req.user.id, "tasks._id": req.params.taskId },
+      { $set: { "tasks.$.status": status } }
     );
-    req.flash('success_msg', 'Task status updated successfully to "Not Completed"');
-
-    res.json({ message: 'Task status updated to not completed', task });
+    if (!result.matchedCount) {
+      return res.status(404).json({ error: "Task not found." });
+    }
+    res.json({ message: `Task marked ${status.toLowerCase().replace("_", " ")}` });
   } catch (error) {
-    req.flash('error_msg', 'Error updating task status');
-    res.status(500).json({ error: 'Error updating task status' });
+    res.status(500).json({ error: "Error updating task status" });
   }
-});
+}
 
-// Route to set status to 'completed'
-router.patch('/:taskId/status/completed',ensureAuthenticated,  async (req, res) => {
-  try {
-    const task = await Task.updateOne(
-      { 'tasks._id': req.params.taskId },
-      { $set: { 'tasks.$.status': 'COMPLETED' } }
-    );
-    req.flash('success_msg', 'Task status updated successfully to "Completed"');
-    res.json({ message: 'Task status updated to completed', task });
-  } catch (error) {
-    req.flash('error_msg', 'Error updating task status');
-    res.status(500).json({ error: 'Error updating task status' });
-  }
-});
-
-
-
+router.patch("/:taskId/status/pending", ensureAuthenticated, (req, res) =>
+  setStatus(req, res, "PENDING")
+);
+router.patch("/:taskId/status/notcompleted", ensureAuthenticated, (req, res) =>
+  setStatus(req, res, "NOT_COMPLETED")
+);
+router.patch("/:taskId/status/completed", ensureAuthenticated, (req, res) =>
+  setStatus(req, res, "COMPLETED")
+);
 
 module.exports = router;
